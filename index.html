@@ -518,6 +518,7 @@ var poems=[
 var state = {
   currentPoem: null,
   blanks: [],
+  blankPhrases: [],
   score: 0,
   total: 0,
   correct: 0,
@@ -638,6 +639,26 @@ function renderPoem(learnMode) {
     var parts = poem.text.split(/([。！？，\n])/);
     var textIdx = 0;
     state.blanks = [];
+
+    // Safety: if no blanks, show full text
+    if (!state.blankPhrases || state.blankPhrases.length === 0) {
+      for (var p0 = 0; p0 < parts.length; p0++) {
+        var part0 = parts[p0];
+        if (!part0) continue;
+        if (/^[。！？，\n]+$/.test(part0)) { textIdx += part0.length; continue; }
+        var lineDiv0 = document.createElement('div');
+        lineDiv0.className = 'line';
+        for (var i0 = 0; i0 < part0.length; i0++) {
+          var span0 = document.createElement('span');
+          span0.className = 'char';
+          span0.textContent = part0[i0];
+          lineDiv0.appendChild(span0);
+          textIdx++;
+        }
+        body.appendChild(lineDiv0);
+      }
+      return;
+    }
 
     for (var p = 0; p < parts.length; p++) {
       var part = parts[p];
