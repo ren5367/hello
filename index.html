@@ -547,7 +547,7 @@ function getFilteredPoems() {
 
 // ===== 按句选词语挖空 =====
 function selectPhraseBlanks(text, difficulty) {
-  // Split into segments by punctuation
+  // 第一步：按标点分段
   var segs = [];
   var segStart = 0;
   for (var i = 0; i < text.length; i++) {
@@ -589,8 +589,20 @@ function selectPhraseBlanks(text, difficulty) {
   }
 
   blanks.sort(function(a, b) { return a.start - b.start; });
-  console.log('[debug] selectPhraseBlanks returning', blanks.length, 'blanks');
   return blanks;
+}
+
+// ===== 构建空白位置集合（字符级）=====
+function buildBlankSet(blankPhrases) {
+  var set = {};
+  for (var i = 0; i < blankPhrases.length; i++) {
+    var bp = blankPhrases[i];
+    for (var j = 0; j < bp.text.length; j++) {
+      var key = (bp.start + j);
+      set[key] = { phraseIdx: i, charIdx: j, answer: bp.text[j], phraseText: bp.text, phraseLen: bp.text.length };
+    }
+  }
+  return set;
 }
 
 // ===== 渲染诗词（通用）=====
@@ -636,36 +648,16 @@ function renderPoem(learnMode) {
     body.appendChild(speakBtn);
   } else {
     body.classList.remove('learn-mode');
-    // 答题模式：按词语挖空，每个字一个 _ 输入框
+    // 答题模式：按词语挖空
     var parts = poem.text.split(/([。！？，\n])/);
-    var textIdx = 0;
     state.blanks = [];
-
-    // Safety: if no blanks, show full text
-    if (!state.blankPhrases || state.blankPhrases.length === 0) {
-      for (var p0 = 0; p0 < parts.length; p0++) {
-        var part0 = parts[p0];
-        if (!part0) continue;
-        if (/^[。！？，\n]+$/.test(part0)) { textIdx += part0.length; continue; }
-        var lineDiv0 = document.createElement('div');
-        lineDiv0.className = 'line';
-        for (var i0 = 0; i0 < part0.length; i0++) {
-          var span0 = document.createElement('span');
-          span0.className = 'char';
-          span0.textContent = part0[i0];
-          lineDiv0.appendChild(span0);
-          textIdx++;
-        }
-        body.appendChild(lineDiv0);
-      }
-      return;
-    }
+    state.blankSet = buildBlankSet(state.blankPhrases || []);
+    var phraseGroups = {}; // phraseIdx -> DOM group element
 
     for (var p = 0; p < parts.length; p++) {
       var part = parts[p];
       if (!part) continue;
       if (/^[。！？，\n]+$/.test(part)) {
-        textIdx += part.length;
         continue;
       }
 
@@ -677,26 +669,23 @@ function renderPoem(learnMode) {
         var span = document.createElement('span');
         span.className = 'char';
 
-        var blank = null;
-        for (var b = 0; b < state.blankPhrases.length; b++) {
-          if (state.blankPhrases[b].start === textIdx) {
-            blank = state.blankPhrases[b];
-            break;
-          }
-        }
+        var bInfo = state.blankSet[textIdx];
 
-        if (blank) {
-          // Create a group wrapper for multi-char phrases
+        if (bInfo && bInfo.charIdx === 0) {
+          // Start of a blank phrase — create group wrapper
           var group = document.createElement('span');
           group.className = 'blank-group';
-          var charLen = blank.text.length;
-          var phraseIdx = state.blankPhrases.indexOf(blank);
+          var charLen = bInfo.phraseLen;
 
           for (var c = 0; c < charLen; c++) {
+            var key = textIdx + c;
+            var info = state.blankSet[key];
+            if (!info) break;
+
             var blankSpan = document.createElement('span');
             blankSpan.className = 'blank';
-            blankSpan.dataset.phraseIdx = phraseIdx;
-            blankSpan.dataset.charIdx = c;
+            blankSpan.dataset.phraseIdx = info.phraseIdx;
+            blankSpan.dataset.charIdx = info.charIdx;
 
             var input = document.createElement('input');
             input.type = 'text';
@@ -707,26 +696,28 @@ function renderPoem(learnMode) {
             input.setAttribute('autocapitalize', 'off');
             input.setAttribute('spellcheck', 'false');
 
+            var phraseInfo = {
+              phraseIdx: info.phraseIdx,
+              phraseLen: charLen,
+              answer: info.answer
+            };
+
+            var phraseData = {
+              phraseIdx: info.phraseIdx,
+              charIdx: info.charIdx,
+              answer: info.answer,
+              phraseText: bInfo.phraseText
+            };
+
             var composing = false;
             input.addEventListener('compositionstart', function() { composing = true; });
             input.addEventListener('compositionend', function() {
               composing = false;
-              var el = this;
-              var val = el.value.trim();
-              if (!val) return;
-              var phIdx = parseInt(el.parentElement.dataset.phraseIdx);
-              var cIdx = parseInt(el.parentElement.dataset.charIdx);
-              var phrase = state.blankPhrases[phIdx];
-              distributeInput(el, val, phrase, phIdx, cIdx);
+              handleInput(this, phraseData);
             });
             input.addEventListener('input', function() {
               if (composing) return;
-              var val = this.value.trim();
-              if (!val) return;
-              var phIdx = parseInt(this.parentElement.dataset.phraseIdx);
-              var cIdx = parseInt(this.parentElement.dataset.charIdx);
-              var phrase = state.blankPhrases[phIdx];
-              distributeInput(this, val, phrase, phIdx, cIdx);
+              handleInput(this, phraseData);
             });
             input.addEventListener('keydown', function(e) {
               if (e.key === 'Enter') { checkAnswer(); e.preventDefault(); return; }
@@ -740,9 +731,9 @@ function renderPoem(learnMode) {
             blankSpan.appendChild(input);
             state.blanks.push({
               element: blankSpan,
-              answer: phrase.text[c],
-              phraseIdx: phraseIdx,
-              charIdx: c
+              answer: info.answer,
+              phraseIdx: info.phraseIdx,
+              charIdx: info.charIdx
             });
             group.appendChild(blankSpan);
           }
@@ -761,54 +752,24 @@ function renderPoem(learnMode) {
 }
 
 // Distribute multi-char input across adjacent blanks in the same phrase
-function distributeInput(sourceInput, val, phrase, phraseIdx, charIdx) {
+function handleInput(el, data) {
+  var val = el.value.trim();
+  if (!val) return;
+  // Fill this input and subsequent ones in the same phrase group
+  var parent = el.parentElement; // .blank
+  var group = parent.parentElement; // .blank-group
+  var blanks = group.querySelectorAll('.blank');
+  var cIdx = data.charIdx;
   var remaining = val;
-  for (var c = charIdx; c < phrase.text.length; c++) {
-    if (remaining.length === 0) break;
-    var idx = getBlankIndex(phraseIdx, c);
-    if (idx < 0 || idx >= state.blanks.length) break;
-    var b = state.blanks[idx];
-    var inp = b.element.querySelector('input');
-    inp.value = remaining[0];
-    b.element.classList.add('filled');
+  for (var c = cIdx; c < data.phraseLen && remaining.length > 0; c++) {
+    blanks[c].querySelector('input').value = remaining[0];
+    blanks[c].classList.add('filled');
     remaining = remaining.substring(1);
   }
-  // Focus next unfilled input
-  if (remaining.length === 0) {
-    var nextIdx = getBlankIndex(phraseIdx, Math.min(charIdx + (val.length), phrase.text.length - 1)) + 1;
-    if (nextIdx < state.blanks.length) {
-      state.blanks[nextIdx].element.querySelector('input').focus();
-    }
-  }
-}
-
-function getBlankIndex(phraseIdx, charIdx) {
-  for (var i = 0; i < state.blanks.length; i++) {
-    if (state.blanks[i].phraseIdx === phraseIdx && state.blanks[i].charIdx === charIdx) return i;
-  }
-  return -1;
-}
-
-function focusPrevInGroup(el) {
-  var phIdx = parseInt(el.parentElement.dataset.phraseIdx);
-  var cIdx = parseInt(el.parentElement.dataset.charIdx);
-  if (cIdx > 0) {
-    var idx = getBlankIndex(phIdx, cIdx - 1);
-    if (idx >= 0) state.blanks[idx].element.querySelector('input').focus();
-  } else {
-    // Find previous phrase
-    var prevPhraseIdx = -1;
-    for (var i = 0; i < state.blanks.length; i++) {
-      if (state.blanks[i].phraseIdx < phIdx) prevPhraseIdx = state.blanks[i].phraseIdx;
-    }
-    if (prevPhraseIdx >= 0) {
-      for (var i = state.blanks.length - 1; i >= 0; i--) {
-        if (state.blanks[i].phraseIdx === prevPhraseIdx) {
-          state.blanks[i].element.querySelector('input').focus();
-          break;
-        }
-      }
-    }
+  // Focus next blank
+  if (remaining.length === 0 && cIdx + val.length < data.phraseLen) {
+    var nextBlank = blanks[cIdx + val.length];
+    if (nextBlank) nextBlank.querySelector('input').focus();
   }
 }
 
