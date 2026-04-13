@@ -589,6 +589,7 @@ function selectPhraseBlanks(text, difficulty) {
   }
 
   blanks.sort(function(a, b) { return a.start - b.start; });
+  console.log('[debug] selectPhraseBlanks returning', blanks.length, 'blanks');
   return blanks;
 }
 
@@ -926,7 +927,7 @@ function startLearn() {
 // ===== 答题模式 =====
 function startQuiz() {
   var pool = getFilteredPoems();
-  if (pool.length === 0) return;
+  if (pool.length === 0) { alert('没有可用的诗词'); return; }
   state.currentPoem = pool[Math.floor(Math.random() * pool.length)];
   state.blanks = [];
   state.checked = false;
@@ -935,7 +936,16 @@ function startQuiz() {
   var poem = state.currentPoem;
   state.blankPhrases = selectPhraseBlanks(poem.text, state.difficulty);
 
-  renderPoem(false);
+  console.log('[debug] poem:', poem.title, 'text length:', poem.text.length);
+  console.log('[debug] blankPhrases:', JSON.stringify(state.blankPhrases));
+
+  try {
+    renderPoem(false);
+    console.log('[debug] renderPoem done, blanks:', state.blanks.length);
+  } catch(e) {
+    console.error('[debug] renderPoem error:', e);
+    alert('渲染出错: ' + e.message);
+  }
 
   document.getElementById('result').className = 'result';
   document.getElementById('hintText').textContent = '共 ' + state.blanks.length + ' 个空，点击「检查答案」提交';
