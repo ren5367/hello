@@ -99,17 +99,16 @@ h1{
   border-radius:4px;
 }
 .blank{
-  min-width:2.5em;border-bottom:2.5px solid var(--primary);
-  background:rgba(139,69,19,.05);position:relative;
-  border-radius:4px 4px 0 0;padding:0 4px;
+  min-width:1.4em;border-bottom:2.5px solid var(--primary);
+  background:rgba(139,69,19,.04);position:relative;
 }
 .blank input{
-  width:100%;min-width:2em;height:1.4em;border:none;background:transparent;
+  width:1.2em;min-width:1.2em;height:1.2em;border:none;background:transparent;
   text-align:center;font-size:inherit;font-family:inherit;
   color:var(--text);outline:none;padding:0;
   -webkit-tap-highlight-color:transparent;
 }
-.blank input::placeholder{color:var(--border);font-size:.8em}
+.blank input::placeholder{color:var(--border);font-size:.7em}
 .blank.filled{border-bottom-color:var(--primary-light)}
 .blank.correct{border-bottom-color:var(--correct);background:rgba(39,174,96,.1)}
 .blank.correct input{color:var(--correct)}
@@ -117,6 +116,15 @@ h1{
 .blank.wrong input{color:var(--wrong)}
 .blank .answer-text{
   color:var(--correct);font-weight:600;display:inline;
+}
+/* Blank group wrapper for multi-char phrases */
+.blank-group{
+  display:inline-flex;gap:1px;border-bottom:2.5px solid var(--primary);
+  background:rgba(139,69,19,.04);border-radius:4px 4px 0 0;padding:0 3px;
+  margin:0 1px;position:relative;
+}
+.blank-group .blank{
+  border-bottom:none;min-width:1.3em;background:transparent;
 }
 .hint-text{
   text-align:center;font-size:.82rem;color:var(--text-light);
@@ -203,7 +211,7 @@ h1{
   .btn{padding:7px 12px;font-size:.82rem;min-height:36px}
   .controls,.difficulty,.grade-filter{gap:5px}
   .poem-body{gap:8px}
-  .blank{min-width:2em}
+  .blank-group{gap:0}
 }
 </style>
 </head>
@@ -536,7 +544,7 @@ function getFilteredPoems() {
   return poems.filter(function(p) { return p.grade === state.grade; });
 }
 
-// ===== 词语填空：按句切分，每句选一个词语挖空 =====
+// ===== 按句选词语挖空 =====
 function selectPhraseBlanks(text, difficulty) {
   // Split into segments by punctuation
   var segs = [];
@@ -553,13 +561,11 @@ function selectPhraseBlanks(text, difficulty) {
     segs.push({ start: segStart, end: text.length, text: text.substring(segStart) });
   }
 
-  // Filter short segments
   var valid = segs.filter(function(s) { return s.text.length >= 2; });
   if (valid.length === 0) return [];
 
   shuffle(valid);
 
-  // How many blanks based on difficulty
   var numBlanks;
   if (difficulty === 'easy') numBlanks = Math.max(1, Math.ceil(valid.length * 0.3));
   else if (difficulty === 'medium') numBlanks = Math.max(1, Math.ceil(valid.length * 0.5));
@@ -571,9 +577,7 @@ function selectPhraseBlanks(text, difficulty) {
   var blanks = [];
   for (var s = 0; s < selected.length; s++) {
     var seg = selected[s];
-    // Choose phrase length: 2-4 chars
     var phraseLen = Math.min(seg.text.length, 2 + Math.floor(Math.random() * 3));
-    // Choose start position within segment
     var phraseStart = seg.start + Math.floor(Math.random() * (seg.text.length - phraseLen + 1));
 
     blanks.push({
@@ -630,7 +634,7 @@ function renderPoem(learnMode) {
     body.appendChild(speakBtn);
   } else {
     body.classList.remove('learn-mode');
-    // 答题模式：显示填空
+    // 答题模式：按词语挖空，每个字一个 _ 输入框
     var parts = poem.text.split(/([。！？，\n])/);
     var textIdx = 0;
     state.blanks = [];
@@ -651,7 +655,6 @@ function renderPoem(learnMode) {
         var span = document.createElement('span');
         span.className = 'char';
 
-        // Check if this position starts a blank
         var blank = null;
         for (var b = 0; b < state.blankPhrases.length; b++) {
           if (state.blankPhrases[b].start === textIdx) {
@@ -661,47 +664,69 @@ function renderPoem(learnMode) {
         }
 
         if (blank) {
-          span.classList.add('blank');
-          var input = document.createElement('input');
-          input.type = 'text';
-          input.placeholder = '输入' + blank.text.length + '个字';
-          input.maxLength = blank.text.length + 1;
-          input.setAttribute('data-answer', blank.text);
-          input.setAttribute('autocomplete', 'off');
-          input.setAttribute('autocorrect', 'off');
-          input.setAttribute('autocapitalize', 'off');
-          input.setAttribute('spellcheck', 'false');
+          // Create a group wrapper for multi-char phrases
+          var group = document.createElement('span');
+          group.className = 'blank-group';
+          var charLen = blank.text.length;
+          var phraseIdx = state.blankPhrases.indexOf(blank);
 
-          // IME support
-          var composing = false;
-          input.addEventListener('compositionstart', function() { composing = true; });
-          input.addEventListener('compositionend', function() {
-            composing = false;
-            var el = this;
-            var val = el.value.trim();
-            if (val) {
-              el.parentElement.classList.add('filled');
-              focusNext(el);
-            }
-          });
-          input.addEventListener('input', function() {
-            if (composing) return;
-            var val = this.value.trim();
-            if (val) this.parentElement.classList.add('filled');
-          });
-          input.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { checkAnswer(); e.preventDefault(); return; }
-            if (e.key === 'Backspace' && !this.value) { focusPrev(this); }
-          });
-          input.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            this.focus();
-          });
-          span.appendChild(input);
-          state.blanks.push({ element: span, answer: blank.text });
-          textIdx += blank.text.length;
-          // Skip the remaining chars of this phrase
-          i += blank.text.length - 1;
+          for (var c = 0; c < charLen; c++) {
+            var blankSpan = document.createElement('span');
+            blankSpan.className = 'blank';
+            blankSpan.dataset.phraseIdx = phraseIdx;
+            blankSpan.dataset.charIdx = c;
+
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.maxLength = charLen;
+            input.placeholder = '_';
+            input.setAttribute('autocomplete', 'off');
+            input.setAttribute('autocorrect', 'off');
+            input.setAttribute('autocapitalize', 'off');
+            input.setAttribute('spellcheck', 'false');
+
+            var composing = false;
+            input.addEventListener('compositionstart', function() { composing = true; });
+            input.addEventListener('compositionend', function() {
+              composing = false;
+              var el = this;
+              var val = el.value.trim();
+              if (!val) return;
+              var phIdx = parseInt(el.parentElement.dataset.phraseIdx);
+              var cIdx = parseInt(el.parentElement.dataset.charIdx);
+              var phrase = state.blankPhrases[phIdx];
+              distributeInput(el, val, phrase, phIdx, cIdx);
+            });
+            input.addEventListener('input', function() {
+              if (composing) return;
+              var val = this.value.trim();
+              if (!val) return;
+              var phIdx = parseInt(this.parentElement.dataset.phraseIdx);
+              var cIdx = parseInt(this.parentElement.dataset.charIdx);
+              var phrase = state.blankPhrases[phIdx];
+              distributeInput(this, val, phrase, phIdx, cIdx);
+            });
+            input.addEventListener('keydown', function(e) {
+              if (e.key === 'Enter') { checkAnswer(); e.preventDefault(); return; }
+              if (e.key === 'Backspace' && !this.value) { focusPrevInGroup(this); }
+            });
+            input.addEventListener('touchend', function(e) {
+              e.preventDefault();
+              this.focus();
+            });
+
+            blankSpan.appendChild(input);
+            state.blanks.push({
+              element: blankSpan,
+              answer: phrase.text[c],
+              phraseIdx: phraseIdx,
+              charIdx: c
+            });
+            group.appendChild(blankSpan);
+          }
+          span.appendChild(group);
+          textIdx += charLen;
+          i += charLen - 1;
         } else {
           span.textContent = ch;
         }
@@ -713,17 +738,55 @@ function renderPoem(learnMode) {
   }
 }
 
-function focusNext(el) {
-  var inputs = document.querySelectorAll('.blank input');
-  for (var i = 0; i < inputs.length - 1; i++) {
-    if (inputs[i] === el) { inputs[i + 1].focus(); return; }
+// Distribute multi-char input across adjacent blanks in the same phrase
+function distributeInput(sourceInput, val, phrase, phraseIdx, charIdx) {
+  var remaining = val;
+  for (var c = charIdx; c < phrase.text.length; c++) {
+    if (remaining.length === 0) break;
+    var idx = getBlankIndex(phraseIdx, c);
+    if (idx < 0 || idx >= state.blanks.length) break;
+    var b = state.blanks[idx];
+    var inp = b.element.querySelector('input');
+    inp.value = remaining[0];
+    b.element.classList.add('filled');
+    remaining = remaining.substring(1);
+  }
+  // Focus next unfilled input
+  if (remaining.length === 0) {
+    var nextIdx = getBlankIndex(phraseIdx, Math.min(charIdx + (val.length), phrase.text.length - 1)) + 1;
+    if (nextIdx < state.blanks.length) {
+      state.blanks[nextIdx].element.querySelector('input').focus();
+    }
   }
 }
 
-function focusPrev(el) {
-  var inputs = document.querySelectorAll('.blank input');
-  for (var i = 1; i < inputs.length; i++) {
-    if (inputs[i] === el) { inputs[i - 1].focus(); return; }
+function getBlankIndex(phraseIdx, charIdx) {
+  for (var i = 0; i < state.blanks.length; i++) {
+    if (state.blanks[i].phraseIdx === phraseIdx && state.blanks[i].charIdx === charIdx) return i;
+  }
+  return -1;
+}
+
+function focusPrevInGroup(el) {
+  var phIdx = parseInt(el.parentElement.dataset.phraseIdx);
+  var cIdx = parseInt(el.parentElement.dataset.charIdx);
+  if (cIdx > 0) {
+    var idx = getBlankIndex(phIdx, cIdx - 1);
+    if (idx >= 0) state.blanks[idx].element.querySelector('input').focus();
+  } else {
+    // Find previous phrase
+    var prevPhraseIdx = -1;
+    for (var i = 0; i < state.blanks.length; i++) {
+      if (state.blanks[i].phraseIdx < phIdx) prevPhraseIdx = state.blanks[i].phraseIdx;
+    }
+    if (prevPhraseIdx >= 0) {
+      for (var i = state.blanks.length - 1; i >= 0; i--) {
+        if (state.blanks[i].phraseIdx === prevPhraseIdx) {
+          state.blanks[i].element.querySelector('input').focus();
+          break;
+        }
+      }
+    }
   }
 }
 
@@ -881,7 +944,7 @@ function checkAnswer() {
       b.element.classList.add('wrong');
       var ansSpan = document.createElement('span');
       ansSpan.className = 'answer-text';
-      ansSpan.textContent = '「' + b.answer + '」';
+      ansSpan.textContent = b.answer;
       b.element.appendChild(ansSpan);
     }
   }
@@ -907,7 +970,6 @@ function checkAnswer() {
     result.textContent = '答对 ' + correctCount + '/' + state.blanks.length + ' 个，多读多练！';
   }
 
-  // Show reward
   showReward(correctCount, state.blanks.length);
 
   document.getElementById('checkBtn').disabled = true;
