@@ -3,13 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>古诗词填空</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#faf6f0;--card:#fff;--primary:#8b4513;--primary-light:#c4956a;
-  --accent:#c0392b;--text:#2c1810;--text-light:#6b5b4f;--border:#d4c5b5;
-  --correct:#27ae60;--wrong:#e74c3c;--shadow:0 2px 16px rgba(44,24,16,.08);
+  --bg:#f5f0e8;--card:#fffef9;--primary:#6b4c3b;--primary-light:#a08060;
+  --accent:#c0392b;--text:#2c1810;--text-light:#7d6b5d;--border:#d4c5b5;
+  --correct:#27ae60;--correct-bg:rgba(39,174,96,.08);
+  --wrong:#e74c3c;--wrong-bg:rgba(231,76,60,.08);
+  --shadow:0 2px 16px rgba(44,24,16,.06);--radius:16px;
 }
 html,body{width:100%;min-height:100%;min-height:100dvh}
 body{
@@ -17,64 +22,66 @@ body{
   background:var(--bg);color:var(--text);
   display:flex;flex-direction:column;align-items:center;
   padding-bottom:40px;
-  background-image:radial-gradient(circle at 20% 50%,rgba(139,69,19,.03) 0%,transparent 50%),
+  background-image:radial-gradient(circle at 20% 50%,rgba(107,76,59,.03) 0%,transparent 50%),
                    radial-gradient(circle at 80% 20%,rgba(192,57,43,.03) 0%,transparent 50%);
 }
-header{
-  width:100%;max-width:800px;padding:20px 16px 8px;text-align:center;
+header{width:100%;max-width:800px;padding:20px 16px 8px;text-align:center}
+.header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+h1{font-size:clamp(1.5rem,6vw,2.2rem);font-weight:700;color:var(--primary);letter-spacing:.15em}
+.subtitle{font-size:clamp(.8rem,2.5vw,.9rem);color:var(--text-light);margin-bottom:10px}
+.bgm-btn{
+  font-size:1.2rem;background:none;border:1px solid var(--border);border-radius:8px;
+  cursor:pointer;padding:4px 8px;transition:all .15s;
+  -webkit-tap-highlight-color:transparent;min-height:36px;
 }
-h1{
-  font-size:clamp(1.5rem,6vw,2.2rem);font-weight:700;color:var(--primary);
-  letter-spacing:.15em;margin-bottom:2px;
-}
-.subtitle{font-size:clamp(.8rem,2.5vw,.9rem);color:var(--text-light);margin-bottom:12px}
+.bgm-btn.bgm-on{background:var(--primary);color:#fff;border-color:var(--primary)}
 .stats{
-  display:flex;justify-content:center;gap:16px;margin-bottom:12px;
-  font-size:clamp(.82rem,2.5vw,.92rem);color:var(--text-light);
+  display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;
+  font-size:clamp(.8rem,2.5vw,.9rem);color:var(--text-light);
 }
 .stats span{font-weight:600;color:var(--primary)}
-.controls{
-  display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px;
+.mode-select{display:flex;gap:6px;justify-content:center;margin-bottom:8px}
+.mode-btn{
+  padding:4px 16px;border-radius:20px;border:1.5px solid var(--primary);
+  background:transparent;font-size:clamp(.82rem,2.2vw,.9rem);cursor:pointer;
+  color:var(--primary);transition:all .15s;font-family:inherit;
+  -webkit-tap-highlight-color:transparent;min-height:32px;
 }
-.btn{
-  padding:8px 18px;border:1.5px solid var(--primary);border-radius:8px;
-  background:transparent;color:var(--primary);font-size:clamp(.85rem,2.5vw,.95rem);
-  cursor:pointer;transition:all .15s;font-family:inherit;
-  -webkit-tap-highlight-color:transparent;user-select:none;
-  min-height:40px;display:inline-flex;align-items:center;justify-content:center;
-}
-.btn:active{transform:scale(.96)}
-.btn:disabled{opacity:.35;pointer-events:none}
-.btn.primary{background:var(--primary);color:#fff}
-.btn.primary:active{background:#6d3610}
-.btn.accent{border-color:var(--accent);color:var(--accent)}
-.btn.accent:active{background:var(--accent);color:#fff}
-.btn.green{border-color:var(--correct);color:var(--correct)}
-.btn.green:active{background:var(--correct);color:#fff}
-.difficulty{
-  display:flex;gap:6px;justify-content:center;margin-bottom:10px;
-}
+.mode-btn.active{background:var(--primary);color:#fff}
+.difficulty{display:flex;gap:6px;justify-content:center;margin-bottom:8px}
 .diff-btn{
   padding:4px 14px;border-radius:20px;border:1px solid var(--border);
   background:transparent;font-size:clamp(.75rem,2.2vw,.82rem);cursor:pointer;
   color:var(--text-light);transition:all .15s;font-family:inherit;
-  -webkit-tap-highlight-color:transparent;user-select:none;min-height:32px;
+  -webkit-tap-highlight-color:transparent;min-height:30px;
 }
 .diff-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-.diff-btn:active{transform:scale(.95)}
-.grade-filter{
-  display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;
-}
+.grade-filter{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
 .grade-btn{
   padding:3px 12px;border-radius:14px;border:1px solid var(--border);
   background:transparent;font-size:clamp(.72rem,2.2vw,.78rem);cursor:pointer;
   color:var(--text-light);transition:all .15s;font-family:inherit;
-  -webkit-tap-highlight-color:transparent;user-select:none;min-height:30px;
+  -webkit-tap-highlight-color:transparent;min-height:28px;
 }
 .grade-btn.active{background:var(--primary-light);color:#fff;border-color:var(--primary-light)}
-.grade-btn:active{transform:scale(.95)}
+.controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
+.btn{
+  padding:8px 18px;border:1.5px solid var(--primary);border-radius:8px;
+  background:transparent;color:var(--primary);font-size:clamp(.85rem,2.5vw,.95rem);
+  cursor:pointer;transition:all .15s;font-family:inherit;
+  -webkit-tap-highlight-color:transparent;user-select:none;min-height:40px;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.btn:active{transform:scale(.96)}
+.btn:disabled{opacity:.35;pointer-events:none}
+.btn.primary{background:var(--primary);color:#fff}
+.btn.primary:active{background:#5a3f30}
+.btn.accent{border-color:var(--accent);color:var(--accent)}
+.btn.accent:active{background:var(--accent);color:#fff}
+.btn.green{border-color:var(--correct);color:var(--correct)}
+.btn.green:active{background:var(--correct);color:#fff}
 .card{
-  width:calc(100% - 24px);max-width:800px;background:var(--card);border-radius:16px;
+  width:calc(100% - 24px);max-width:800px;background:var(--card);border-radius:var(--radius);
   box-shadow:var(--shadow);padding:clamp(16px,4vw,36px);margin:0 12px 24px;
   position:relative;overflow:hidden;
 }
@@ -89,43 +96,59 @@ h1{
   display:flex;flex-direction:column;align-items:center;gap:10px;
   font-size:clamp(1.05rem,3.5vw,1.4rem);line-height:2;text-align:center;
 }
-.line{
-  display:flex;flex-wrap:wrap;justify-content:center;gap:2px;
-  letter-spacing:.08em;
-}
+.line{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;letter-spacing:.08em}
 .char{
   display:inline-flex;align-items:center;justify-content:center;
-  min-width:1.3em;height:1.5em;padding:0 2px;
-  border-radius:4px;
+  min-width:1.3em;height:1.5em;padding:0 2px;border-radius:4px;
 }
+/* Fill-in blanks */
+.blank-group{
+  display:inline-flex;gap:1px;border-bottom:2.5px solid var(--primary);
+  background:rgba(107,76,59,.04);border-radius:4px 4px 0 0;padding:0 3px;margin:0 1px;
+}
+.blank-group .blank{border-bottom:none;min-width:1.3em;background:transparent}
 .blank{
   min-width:1.4em;border-bottom:2.5px solid var(--primary);
-  background:rgba(139,69,19,.04);position:relative;
+  background:rgba(107,76,59,.04);position:relative;
 }
 .blank input{
   width:1.2em;min-width:1.2em;height:1.2em;border:none;background:transparent;
-  text-align:center;font-size:inherit;font-family:inherit;
-  color:var(--text);outline:none;padding:0;
-  -webkit-tap-highlight-color:transparent;
+  text-align:center;font-size:inherit;font-family:inherit;color:var(--text);
+  outline:none;padding:0;-webkit-tap-highlight-color:transparent;
 }
 .blank input::placeholder{color:var(--border);font-size:.7em}
 .blank.filled{border-bottom-color:var(--primary-light)}
-.blank.correct{border-bottom-color:var(--correct);background:rgba(39,174,96,.1)}
+.blank.correct{border-bottom-color:var(--correct);background:var(--correct-bg)}
 .blank.correct input{color:var(--correct)}
-.blank.wrong{border-bottom-color:var(--wrong);background:rgba(231,76,60,.1)}
+.blank.wrong{border-bottom-color:var(--wrong);background:var(--wrong-bg)}
 .blank.wrong input{color:var(--wrong)}
-.blank .answer-text{
-  color:var(--correct);font-weight:600;display:inline;
+.blank .answer-text{color:var(--correct);font-weight:600;display:inline}
+/* Choice mode */
+.choice-options{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin-top:20px;max-width:400px;margin-left:auto;margin-right:auto;
 }
-/* Blank group wrapper for multi-char phrases */
-.blank-group{
-  display:inline-flex;gap:1px;border-bottom:2.5px solid var(--primary);
-  background:rgba(139,69,19,.04);border-radius:4px 4px 0 0;padding:0 3px;
-  margin:0 1px;position:relative;
+.choice-btn{
+  padding:16px;border:2px solid var(--border);border-radius:12px;
+  background:var(--card);font-size:1.5rem;cursor:pointer;transition:all .15s;
+  font-family:inherit;-webkit-tap-highlight-color:transparent;min-height:56px;
 }
-.blank-group .blank{
-  border-bottom:none;min-width:1.3em;background:transparent;
+.choice-btn:active{transform:scale(.96)}
+.choice-btn:hover:not(:disabled){border-color:var(--primary);box-shadow:var(--shadow)}
+.choice-btn.choice-correct{background:var(--correct-bg);border-color:var(--correct);color:var(--correct)}
+.choice-btn.choice-wrong{background:var(--wrong-bg);border-color:var(--wrong);color:var(--wrong)}
+.choice-btn:disabled{cursor:default;opacity:.7}
+/* Learning mode */
+.learn-mode .char{animation:fadeIn .3s ease both}
+.learn-mode .line{padding:4px 0}
+.speak-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px 12px;border:1px solid var(--primary-light);border-radius:20px;
+  background:transparent;color:var(--primary);font-size:.78rem;cursor:pointer;
+  margin-top:6px;font-family:inherit;-webkit-tap-highlight-color:transparent;min-height:28px;
 }
+.speak-btn:active{background:rgba(107,76,59,.08)}
+.speak-btn.speaking{background:var(--primary);color:#fff}
 .hint-text{
   text-align:center;font-size:.82rem;color:var(--text-light);
   margin-top:8px;min-height:1.2em;
@@ -135,37 +158,13 @@ h1{
   font-size:clamp(.88rem,2.5vw,.98rem);display:none;
 }
 .result.show{display:block}
-.result.pass{background:rgba(39,174,96,.1);color:var(--correct)}
-.result.fail{background:rgba(231,76,60,.1);color:var(--wrong)}
-
-/* ─── Learning mode ─── */
-.learn-mode .char{
-  animation:fadeIn .3s ease both;
-}
-.learn-mode .line{
-  padding:4px 0;
-}
-.speak-btn{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:4px 12px;border:1px solid var(--primary-light);border-radius:20px;
-  background:transparent;color:var(--primary);font-size:.78rem;
-  cursor:pointer;margin-top:6px;font-family:inherit;
-  -webkit-tap-highlight-color:transparent;user-select:none;min-height:28px;
-}
-.speak-btn:active{background:rgba(139,69,19,.08)}
-.speak-btn.speaking{background:var(--primary);color:#fff}
-.speak-hint{
-  text-align:center;font-size:.75rem;color:var(--text-light);
-  margin-top:4px;display:none;
-}
-.speak-hint.show{display:block}
-
-/* ─── Reward overlay ─── */
+.result.pass{background:var(--correct-bg);color:var(--correct)}
+.result.fail{background:var(--wrong-bg);color:var(--wrong)}
+/* Reward overlay */
 .reward-overlay{
   position:fixed;top:0;left:0;right:0;bottom:0;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  z-index:9999;pointer-events:none;opacity:0;
-  transition:opacity .3s;
+  z-index:9999;pointer-events:none;opacity:0;transition:opacity .3s;
 }
 .reward-overlay.show{opacity:1;pointer-events:auto}
 .reward-overlay .big-icon{
@@ -173,8 +172,7 @@ h1{
   animation:rewardPop .6s cubic-bezier(.175,.885,.32,1.275) both;
 }
 .reward-overlay .big-text{
-  font-size:clamp(24px,6vw,42px);font-weight:900;
-  color:var(--correct);
+  font-size:clamp(24px,6vw,42px);font-weight:900;color:var(--correct);
   text-shadow:0 2px 20px rgba(39,174,96,.3);
   animation:rewardSlide .5s .2s ease both;
 }
@@ -182,46 +180,53 @@ h1{
   font-size:clamp(14px,3.5vw,20px);color:var(--primary-light);
   margin-top:8px;animation:rewardSlide .5s .35s ease both;
 }
-
-/* ─── Particles (confetti-like) ─── */
 .particle{
   position:fixed;width:10px;height:10px;border-radius:50%;
-  pointer-events:none;z-index:9998;
-  animation:particleFall 1.5s ease-out forwards;
+  pointer-events:none;z-index:9998;animation:particleFall 1.5s ease-out forwards;
 }
-
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @keyframes rewardPop{
   0%{transform:scale(0) rotate(-20deg);opacity:0}
   60%{transform:scale(1.3) rotate(5deg);opacity:1}
   100%{transform:scale(1) rotate(0)}
 }
-@keyframes rewardSlide{
-  from{transform:translateY(30px);opacity:0}
-  to{transform:translateY(0);opacity:1}
-}
+@keyframes rewardSlide{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
 @keyframes particleFall{
   0%{transform:translate(0,0) rotate(0);opacity:1}
   100%{transform:translate(var(--dx),var(--dy)) rotate(720deg);opacity:0}
 }
-
 @media(max-width:480px){
   .card{margin:0 8px 20px;padding:14px;border-radius:12px}
-  .stats{gap:10px;font-size:.8rem}
+  .stats{gap:8px;font-size:.78rem}
   .btn{padding:7px 12px;font-size:.82rem;min-height:36px}
-  .controls,.difficulty,.grade-filter{gap:5px}
+  .controls,.difficulty,.grade-filter,.mode-select{gap:5px}
   .poem-body{gap:8px}
   .blank-group{gap:0}
+  .choice-options{gap:8px}
+  .choice-btn{padding:12px;font-size:1.3rem;min-height:48px}
 }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>古诗词填空</h1>
-  <p class="subtitle">中小学必背古诗词</p>
+  <div class="header-row">
+    <div>
+      <h1>古诗词填空</h1>
+      <p class="subtitle">中小学必背古诗</p>
+    </div>
+    <button class="bgm-btn" id="bgmBtn" title="背景音乐">🔇</button>
+  </div>
   <div class="stats">
-    第 <span id="roundNum">1</span> 题 &nbsp;|&nbsp; 得分 <span id="scoreNum">0</span> &nbsp;|&nbsp; 正确率 <span id="accuracyNum">0%</span>
+    第 <span id="roundNum">1</span> 题
+    &nbsp;|&nbsp; 得分 <span id="scoreNum">0</span>
+    &nbsp;|&nbsp; 正确率 <span id="accuracyNum">0%</span>
+    &nbsp;|&nbsp; 🔥<span id="streakNum">0</span>
+  </div>
+  <div class="mode-select">
+    <button class="mode-btn active" data-mode="single">单空</button>
+    <button class="mode-btn" data-mode="multi">多空</button>
+    <button class="mode-btn" data-mode="choice">选择</button>
   </div>
   <div class="difficulty">
     <button class="diff-btn active" data-diff="easy">简单</button>
@@ -235,10 +240,9 @@ h1{
   </div>
   <div class="controls">
     <button class="btn green" id="learnBtn">学习模式</button>
-    <button class="btn primary" id="startBtn">开始答题</button>
-    <button class="btn" id="checkBtn" disabled>检查答案</button>
+    <button class="btn" id="hintBtn" disabled>提示</button>
+    <button class="btn primary" id="checkBtn" disabled>检查答案</button>
     <button class="btn" id="nextBtn" disabled>下一题</button>
-    <button class="btn accent" id="showBtn" disabled>显示答案</button>
   </div>
 </header>
 
@@ -248,11 +252,10 @@ h1{
     <div class="poem-author" id="poemAuthor"></div>
   </div>
   <div class="poem-body" id="poemBody"></div>
-  <div class="hint-text" id="hintText">点击「学习模式」先熟悉诗词，或点击「开始答题」直接挑战</div>
+  <div class="hint-text" id="hintText">选择模式后点击「下一题」开始挑战</div>
   <div class="result" id="result"></div>
 </div>
 
-<!-- Reward overlay -->
 <div class="reward-overlay" id="rewardOverlay">
   <div class="big-icon" id="rewardIcon"></div>
   <div class="big-text" id="rewardText"></div>
@@ -461,7 +464,7 @@ var poems=[
 {title:"关雎",author:"诗经",dynasty:"先秦",grade:"middle",
  text:"关关雎鸠，在河之洲。窈窕淑女，君子好逑。参差荇菜，左右流之。窈窕淑女，寤寐求之。求之不得，寤寐思服。悠哉悠哉，辗转反侧。参差荇菜，左右采之。窈窕淑女，琴瑟友之。参差荇菜，左右芼之。窈窕淑女，钟鼓乐之。"},
 {title:"蒹葭",author:"诗经",dynasty:"先秦",grade:"middle",
- text:"蒹葭苍苍，白露为霜。所谓伊人，在水一方。溯洄从之，道阻且长。溯游从之，宛在水中央。蒹葭萋萋，白露未晞。所谓伊人，在水之湄。溯洄从之，道阻且跻。溯游从之，宛在水中坻。蒹葭采采，白露未已。所谓伊人，在水之涘。溯洄从之，道阻且右。溯游从之，宛在水中沚。"},
+ text:"蒹葭苍苍，白露为霜。所谓伊人，在水一方。溯洄从之，道阻且长。溯游从之，宛在水中央。蒹葭萋，白露未晞。所谓伊人，在水之湄。溯洄从之，道阻且跻。溯游从之，宛在水中坻。蒹葭采采，白露未已。所谓伊人，在水之涘。溯洄从之，道阻且右。溯游从之，宛在水中沚。"},
 {title:"送杜少府之任蜀州",author:"王勃",dynasty:"唐",grade:"middle",
  text:"城阙辅三秦，风烟望五津。与君离别意，同是宦游人。海内存知己，天涯若比邻。无为在歧路，儿女共沾巾。"},
 {title:"行路难（其一）",author:"李白",dynasty:"唐",grade:"middle",
@@ -514,341 +517,511 @@ var poems=[
  text:"君不见黄河之水天上来，奔流到海不复回。君不见高堂明镜悲白发，朝如青丝暮成雪。人生得意须尽欢，莫使金樽空对月。天生我材必有用，千金散尽还复来。烹羊宰牛且为乐，会须一饮三百杯。岑夫子，丹丘生，将进酒，杯莫停。与君歌一曲，请君为我倾耳听。钟鼓馔玉不足贵，但愿长醉不复醒。古来圣贤皆寂寞，惟有饮者留其名。"},
 ];
 
-// ===== 游戏状态 =====
-var state = {
-  currentPoem: null,
-  blanks: [],
-  blankPhrases: [],
-  score: 0,
-  total: 0,
-  correct: 0,
-  difficulty: 'easy',
-  grade: 'all',
-  round: 1,
-  checked: false,
-  mode: 'idle' // 'idle', 'learn', 'quiz'
-};
-
-var diffRatio = { easy: 0.25, medium: 0.4, hard: 0.6 };
+// ===== 工具函数 =====
 var PUNCT = new Set(['，','。','！','？','、','；','：','"','"','（','）','《','》','【','】','—','…',',','!','?',';',':','(',')','.']);
+var SENT_END = new Set(['。','！','？','\n']);
 
 function shuffle(arr) {
   for (var i = arr.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
-    var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
   }
   return arr;
 }
 
-function getFilteredPoems() {
+function splitByPunct(text) {
+  var segs = [], start = 0;
+  for (var i = 0; i < text.length; i++) {
+    if (PUNCT.has(text[i])) {
+      if (start < i) segs.push({ start: start, end: i, text: text.substring(start, i) });
+      start = i + 1;
+    }
+  }
+  if (start < text.length) segs.push({ start: start, end: text.length, text: text.substring(start) });
+  return segs;
+}
+
+function getFiltered() {
   if (state.grade === 'all') return poems.slice();
   return poems.filter(function(p) { return p.grade === state.grade; });
 }
 
-// ===== 按句选词语挖空 =====
-function selectPhraseBlanks(text, difficulty) {
-  // 第一步：按标点分段
-  var segs = [];
-  var segStart = 0;
-  for (var i = 0; i < text.length; i++) {
-    if (PUNCT.has(text[i])) {
-      if (segStart < i) {
-        segs.push({ start: segStart, end: i, text: text.substring(segStart, i) });
-      }
-      segStart = i + 1;
-    }
-  }
-  if (segStart < text.length) {
-    segs.push({ start: segStart, end: text.length, text: text.substring(segStart) });
-  }
+// ===== 游戏状态 =====
+var state = {
+  currentPoem: null,
+  gameMode: 'single',   // 'single' | 'multi' | 'choice'
+  difficulty: 'easy',   // 'easy' | 'medium' | 'hard'
+  grade: 'all',
+  blanks: [],           // [{ phraseStart, phraseLen, answer }]
+  blankSet: {},         // { rawIndex -> { blankIndex, charOffset } }
+  choiceQ: null,        // choice mode question
+  score: 0,
+  total: 0,
+  correct: 0,
+  streak: 0,
+  round: 1,
+  checked: false,
+  mode: 'idle'          // 'idle' | 'learn' | 'quiz'
+};
 
+// ===== 题目生成 =====
+function selectSingleBlanks(text) {
+  var segs = splitByPunct(text);
   var valid = segs.filter(function(s) { return s.text.length >= 2; });
   if (valid.length === 0) return [];
-
   shuffle(valid);
-
-  var numBlanks;
-  if (difficulty === 'easy') numBlanks = Math.max(1, Math.ceil(valid.length * 0.3));
-  else if (difficulty === 'medium') numBlanks = Math.max(1, Math.ceil(valid.length * 0.5));
-  else numBlanks = Math.max(2, Math.ceil(valid.length * 0.7));
-
-  numBlanks = Math.min(numBlanks, valid.length);
-  var selected = valid.slice(0, numBlanks);
-
+  var n;
+  if (state.difficulty === 'easy') n = 1;
+  else if (state.difficulty === 'medium') n = Math.max(1, Math.floor(valid.length * 0.3));
+  else n = Math.max(1, Math.floor(valid.length * 0.5));
+  n = Math.min(n, valid.length);
   var blanks = [];
-  for (var s = 0; s < selected.length; s++) {
-    var seg = selected[s];
-    var phraseLen = Math.min(seg.text.length, 2 + Math.floor(Math.random() * 3));
-    var phraseStart = seg.start + Math.floor(Math.random() * (seg.text.length - phraseLen + 1));
-
-    blanks.push({
-      start: phraseStart,
-      end: phraseStart + phraseLen,
-      text: text.substring(phraseStart, phraseStart + phraseLen)
-    });
+  for (var i = 0; i < n; i++) {
+    var seg = valid[i];
+    var pos = seg.start + Math.floor(Math.random() * seg.text.length);
+    blanks.push({ phraseStart: pos, phraseLen: 1, answer: text[pos] });
   }
-
-  blanks.sort(function(a, b) { return a.start - b.start; });
+  blanks.sort(function(a, b) { return a.phraseStart - b.phraseStart; });
   return blanks;
 }
 
-// ===== 构建空白位置集合（字符级）=====
-function buildBlankSet(blankPhrases) {
-  var set = {};
-  for (var i = 0; i < blankPhrases.length; i++) {
-    var bp = blankPhrases[i];
-    for (var j = 0; j < bp.text.length; j++) {
-      var key = (bp.start + j);
-      set[key] = { phraseIdx: i, charIdx: j, answer: bp.text[j], phraseText: bp.text, phraseLen: bp.text.length };
-    }
+function selectMultiBlanks(text) {
+  var segs = splitByPunct(text);
+  var valid = segs.filter(function(s) { return s.text.length >= 3; });
+  if (valid.length === 0) return [];
+  shuffle(valid);
+  var n;
+  if (state.difficulty === 'easy') n = 1;
+  else if (state.difficulty === 'medium') n = Math.max(1, Math.floor(valid.length * 0.3));
+  else n = Math.max(1, Math.floor(valid.length * 0.5));
+  n = Math.min(n, valid.length);
+  var lenMin, lenMax;
+  if (state.difficulty === 'easy') { lenMin = 2; lenMax = 2; }
+  else if (state.difficulty === 'medium') { lenMin = 2; lenMax = 3; }
+  else { lenMin = 2; lenMax = 4; }
+  var blanks = [];
+  for (var i = 0; i < n; i++) {
+    var seg = valid[i];
+    var pLen = Math.min(lenMin + Math.floor(Math.random() * (lenMax - lenMin + 1)), seg.text.length);
+    var pos = seg.start + Math.floor(Math.random() * (seg.text.length - pLen + 1));
+    blanks.push({ phraseStart: pos, phraseLen: pLen, answer: text.substring(pos, pos + pLen) });
   }
-  return set;
+  blanks.sort(function(a, b) { return a.phraseStart - b.phraseStart; });
+  return blanks;
 }
 
-// ===== 渲染诗词（通用）=====
-function renderPoem(learnMode) {
-  var poem = state.currentPoem;
+function generateChoiceQ(text) {
+  var chars = [];
+  for (var i = 0; i < text.length; i++) {
+    if (!PUNCT.has(text[i])) chars.push({ ch: text[i], idx: i });
+  }
+  if (chars.length === 0) return null;
+  var target = chars[Math.floor(Math.random() * chars.length)];
+  var pool = getFiltered();
+  var d = [];
+  var tries = 0;
+  while (d.length < 3 && tries < 200) {
+    var rp = pool[Math.floor(Math.random() * pool.length)];
+    var rc = rp.text[Math.floor(Math.random() * rp.text.length)];
+    if (!PUNCT.has(rc) && rc !== target.ch && d.indexOf(rc) === -1) d.push(rc);
+    tries++;
+  }
+  var fb = ['之','乎','者','也','而','于','以','其','乃','则'];
+  while (d.length < 3) {
+    var f = fb[(d.length + tries) % fb.length];
+    if (f !== target.ch && d.indexOf(f) === -1) d.push(f);
+    else d.push(fb[(d.length + tries + 3) % fb.length]);
+  }
+  var opts = [target.ch].concat(d);
+  shuffle(opts);
+  return { targetCh: target.ch, targetIdx: target.idx, options: opts, answered: false, correct: false };
+}
+
+function buildBlankSet(blanks) {
+  var s = {};
+  for (var i = 0; i < blanks.length; i++) {
+    for (var c = 0; c < blanks[i].phraseLen; c++) {
+      s[blanks[i].phraseStart + c] = { blankIndex: i, charOffset: c };
+    }
+  }
+  return s;
+}
+
+// ===== 渲染 =====
+function setTitle(poem) {
   document.getElementById('poemTitle').textContent = poem.title;
   document.getElementById('poemAuthor').textContent = '[' + poem.dynasty + '] ' + poem.author;
+}
 
+function makeSpan(cls, text) {
+  var s = document.createElement('span');
+  s.className = cls;
+  s.textContent = text;
+  return s;
+}
+
+function renderQuiz() {
+  var poem = state.currentPoem;
+  if (!poem) return;
+  setTitle(poem);
   var body = document.getElementById('poemBody');
   body.innerHTML = '';
 
-  if (learnMode) {
-    body.classList.add('learn-mode');
-    // 学习模式：全文显示
-    var parts = poem.text.split(/([。！？，\n])/);
-    var textIdx = 0;
-    for (var p = 0; p < parts.length; p++) {
-      var part = parts[p];
-      if (!part) continue;
-      if (/^[。！？，\n]+$/.test(part)) {
-        textIdx += part.length;
-        continue;
-      }
-      var lineDiv = document.createElement('div');
-      lineDiv.className = 'line';
-      for (var i = 0; i < part.length; i++) {
-        var span = document.createElement('span');
-        span.className = 'char';
-        span.textContent = part[i];
-        span.style.animationDelay = (textIdx * 0.03) + 's';
-        lineDiv.appendChild(span);
-        textIdx++;
-      }
-      body.appendChild(lineDiv);
-    }
-    // 添加朗诵按钮
-    var speakBtn = document.createElement('button');
-    speakBtn.className = 'speak-btn';
-    speakBtn.textContent = '🔊 朗读';
-    speakBtn.onclick = function() {
-      recitePoem(poem.text, speakBtn);
-    };
-    body.appendChild(speakBtn);
+  if (state.gameMode === 'choice') {
+    renderChoice(body, poem);
   } else {
-    body.classList.remove('learn-mode');
-    // 答题模式：按词语挖空
-    var parts = poem.text.split(/([。！？，\n])/);
-    state.blanks = [];
-    state.blankSet = buildBlankSet(state.blankPhrases || []);
-    var phraseGroups = {}; // phraseIdx -> DOM group element
+    state.blanks = (state.gameMode === 'single') ? selectSingleBlanks(poem.text) : selectMultiBlanks(poem.text);
+    state.blankSet = buildBlankSet(state.blanks);
+    renderFill(body, poem);
+  }
+}
 
-    for (var p = 0; p < parts.length; p++) {
-      var part = parts[p];
-      if (!part) continue;
-      if (/^[。！？，\n]+$/.test(part)) {
-        continue;
+function renderFill(body, poem) {
+  var text = poem.text;
+  var i = 0, lineDiv = null;
+
+  while (i < text.length) {
+    var ch = text[i];
+
+    if (SENT_END.has(ch)) {
+      if (lineDiv) {
+        lineDiv.appendChild(makeSpan('char', ch));
+        body.appendChild(lineDiv);
+        lineDiv = null;
       }
+      i++; continue;
+    }
+    if (ch === '\n') {
+      if (lineDiv) body.appendChild(lineDiv);
+      lineDiv = null;
+      i++; continue;
+    }
 
-      var lineDiv = document.createElement('div');
+    if (!lineDiv) {
+      lineDiv = document.createElement('div');
       lineDiv.className = 'line';
+    }
 
-      for (var i = 0; i < part.length; i++) {
-        var ch = part[i];
-        var span = document.createElement('span');
-        span.className = 'char';
-
-        var bInfo = state.blankSet[textIdx];
-
-        if (bInfo && bInfo.charIdx === 0) {
-          // Start of a blank phrase — create group wrapper
-          var group = document.createElement('span');
-          group.className = 'blank-group';
-          var charLen = bInfo.phraseLen;
-
-          for (var c = 0; c < charLen; c++) {
-            var key = textIdx + c;
-            var info = state.blankSet[key];
-            if (!info) break;
-
-            var blankSpan = document.createElement('span');
-            blankSpan.className = 'blank';
-            blankSpan.dataset.phraseIdx = info.phraseIdx;
-            blankSpan.dataset.charIdx = info.charIdx;
-
-            var input = document.createElement('input');
-            input.type = 'text';
-            input.maxLength = charLen;
-            input.placeholder = '_';
-            input.setAttribute('autocomplete', 'off');
-            input.setAttribute('autocorrect', 'off');
-            input.setAttribute('autocapitalize', 'off');
-            input.setAttribute('spellcheck', 'false');
-
-            var phraseInfo = {
-              phraseIdx: info.phraseIdx,
-              phraseLen: charLen,
-              answer: info.answer
-            };
-
-            var phraseData = {
-              phraseIdx: info.phraseIdx,
-              charIdx: info.charIdx,
-              answer: info.answer,
-              phraseText: bInfo.phraseText
-            };
-
-            var composing = false;
-            input.addEventListener('compositionstart', function() { composing = true; });
-            input.addEventListener('compositionend', function() {
-              composing = false;
-              handleInput(this, phraseData);
-            });
-            input.addEventListener('input', function() {
-              if (composing) return;
-              handleInput(this, phraseData);
-            });
-            input.addEventListener('keydown', function(e) {
-              if (e.key === 'Enter') { checkAnswer(); e.preventDefault(); return; }
-              if (e.key === 'Backspace' && !this.value) { focusPrevInGroup(this); }
-            });
-            input.addEventListener('touchend', function(e) {
-              e.preventDefault();
-              this.focus();
-            });
-
-            blankSpan.appendChild(input);
-            state.blanks.push({
-              element: blankSpan,
-              answer: info.answer,
-              phraseIdx: info.phraseIdx,
-              charIdx: info.charIdx
-            });
-            group.appendChild(blankSpan);
-          }
-          span.appendChild(group);
-          textIdx += charLen;
-          i += charLen - 1;
-        } else {
-          span.textContent = ch;
-        }
-        lineDiv.appendChild(span);
-        textIdx++;
-      }
-      body.appendChild(lineDiv);
+    var bs = state.blankSet[i];
+    if (bs && bs.charOffset === 0) {
+      var blank = state.blanks[bs.blankIndex];
+      var group = createBlankGroup(blank, bs.blankIndex);
+      lineDiv.appendChild(group);
+      i += blank.phraseLen;
+    } else {
+      lineDiv.appendChild(makeSpan('char', ch));
+      i++;
     }
   }
+  if (lineDiv) body.appendChild(lineDiv);
 }
 
-// Distribute multi-char input across adjacent blanks in the same phrase
-function handleInput(el, data) {
+function createBlankGroup(blank, blankIndex) {
+  var group = document.createElement('span');
+  group.className = 'blank-group';
+  group.dataset.blankIndex = blankIndex;
+
+  for (var c = 0; c < blank.phraseLen; c++) {
+    var b = document.createElement('span');
+    b.className = 'blank';
+
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.maxLength = 1;
+    input.placeholder = '_';
+    input.dataset.blankIndex = blankIndex;
+    input.dataset.charOffset = c;
+    input.setAttribute('autocomplete', 'off');
+    input.setAttribute('autocorrect', 'off');
+    input.setAttribute('autocapitalize', 'off');
+    input.setAttribute('spellcheck', 'false');
+
+    input.addEventListener('input', onBlankInput);
+    input.addEventListener('compositionend', onBlankInput);
+    input.addEventListener('keydown', onBlankKeydown);
+    input.addEventListener('focus', function(e) { e.target.select(); });
+
+    b.appendChild(input);
+    group.appendChild(b);
+  }
+  return group;
+}
+
+function renderChoice(body, poem) {
+  var q = state.choiceQ;
+  var text = poem.text;
+  var i = 0, lineDiv = null;
+
+  while (i < text.length) {
+    var ch = text[i];
+
+    if (SENT_END.has(ch)) {
+      if (lineDiv) {
+        lineDiv.appendChild(makeSpan('char', ch));
+        body.appendChild(lineDiv);
+        lineDiv = null;
+      }
+      i++; continue;
+    }
+
+    if (!lineDiv) {
+      lineDiv = document.createElement('div');
+      lineDiv.className = 'line';
+    }
+
+    if (i === q.targetIdx) {
+      var bs = document.createElement('span');
+      bs.className = 'blank';
+      bs.id = 'choiceBlank';
+      bs.style.cssText = 'border-bottom:2.5px solid var(--primary);padding:0 6px;min-width:2em;display:inline-block;text-align:center;font-weight:600;';
+      bs.textContent = '____';
+      lineDiv.appendChild(bs);
+      i++;
+    } else if (!PUNCT.has(ch)) {
+      lineDiv.appendChild(makeSpan('char', ch));
+      i++;
+    } else {
+      lineDiv.appendChild(makeSpan('char', ch));
+      i++;
+    }
+  }
+  if (lineDiv) body.appendChild(lineDiv);
+
+  var optsDiv = document.createElement('div');
+  optsDiv.className = 'choice-options';
+  optsDiv.id = 'choiceOptions';
+
+  for (var o = 0; o < q.options.length; o++) {
+    var btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = q.options[o];
+    btn.dataset.optionIndex = o;
+    btn.addEventListener('click', onChoiceClick);
+    optsDiv.appendChild(btn);
+  }
+  body.appendChild(optsDiv);
+}
+
+// ===== 事件处理（全部从 dataset 读数据，零闭包）=====
+function onBlankInput(e) {
+  var el = e.target;
   var val = el.value.trim();
-  if (!val) return;
-  // Fill this input and subsequent ones in the same phrase group
-  var parent = el.parentElement; // .blank
-  var group = parent.parentElement; // .blank-group
-  var blanks = group.querySelectorAll('.blank');
-  var cIdx = data.charIdx;
-  var remaining = val;
-  for (var c = cIdx; c < data.phraseLen && remaining.length > 0; c++) {
-    blanks[c].querySelector('input').value = remaining[0];
-    blanks[c].classList.add('filled');
-    remaining = remaining.substring(1);
-  }
-  // Focus next blank
-  if (remaining.length === 0 && cIdx + val.length < data.phraseLen) {
-    var nextBlank = blanks[cIdx + val.length];
-    if (nextBlank) nextBlank.querySelector('input').focus();
-  }
-}
-
-// ===== 朗诵功能 =====
-function recitePoem(text, btn) {
-  if (!('speechSynthesis' in window)) {
-    alert('您的浏览器不支持语音合成，请使用 Chrome 或 Safari 浏览器');
+  if (!val) {
+    el.parentElement.classList.remove('filled', 'correct', 'wrong');
+    // Also clear any answer-text spans
+    var at = el.parentElement.querySelector('.answer-text');
+    if (at) at.remove();
     return;
   }
-  window.speechSynthesis.cancel();
-  var utter = new SpeechSynthesisUtterance(text);
-  utter.lang = 'zh-CN';
-  utter.rate = 0.75;
-  utter.pitch = 1;
 
-  // Try to pick a Chinese voice
-  var voices = window.speechSynthesis.getVoices();
-  for (var i = 0; i < voices.length; i++) {
-    if (voices[i].lang.indexOf('zh') === 0) {
-      utter.voice = voices[i];
-      break;
+  var bIdx = parseInt(el.dataset.blankIndex, 10);
+  var cOff = parseInt(el.dataset.charOffset, 10);
+  var blank = state.blanks[bIdx];
+  var group = el.closest('.blank-group');
+  var inputs = group.querySelectorAll('input');
+
+  // Distribute chars
+  var chars = val.split('');
+  var fillIdx = cOff;
+  for (var c = 0; c < chars.length && fillIdx < blank.phraseLen; c++, fillIdx++) {
+    inputs[fillIdx].value = chars[c];
+    inputs[fillIdx].parentElement.classList.add('filled');
+  }
+
+  // Clear source if distributed
+  if (chars.length > 1) el.value = '';
+
+  // Instant per-char feedback
+  for (var j = 0; j < blank.phraseLen; j++) {
+    var inp = inputs[j];
+    var uc = inp.value;
+    var cc = blank.answer[j];
+    var bel = inp.parentElement;
+    bel.classList.remove('correct', 'wrong');
+    // Remove old answer spans
+    var oldAns = bel.querySelector('.answer-text');
+    if (oldAns) oldAns.remove();
+
+    if (uc === cc) {
+      bel.classList.add('correct');
+    } else if (uc) {
+      bel.classList.add('wrong');
+      var ans = document.createElement('span');
+      ans.className = 'answer-text';
+      ans.textContent = cc;
+      bel.appendChild(ans);
     }
   }
 
-  if (btn) {
-    btn.classList.add('speaking');
-    btn.textContent = '🔊 朗读中...';
+  // Auto-focus next
+  if (fillIdx < blank.phraseLen) {
+    inputs[fillIdx].focus();
   }
-  utter.onend = function() {
-    if (btn) {
-      btn.classList.remove('speaking');
-      btn.textContent = '🔊 朗读';
-    }
-  };
-  utter.onerror = function() {
-    if (btn) {
-      btn.classList.remove('speaking');
-      btn.textContent = '🔊 朗读';
-    }
-  };
-  window.speechSynthesis.speak(utter);
 }
 
-// Preload voices
-if ('speechSynthesis' in window) {
-  window.speechSynthesis.getVoices();
-  window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
+function onBlankKeydown(e) {
+  if (e.key === 'Enter') {
+    checkAnswer();
+    e.preventDefault();
+    return;
+  }
+  if (e.key === 'Backspace' && !e.target.value) {
+    focusPrevBlank(e.target);
+    e.preventDefault();
+  }
+  if (e.key === 'ArrowLeft') { focusPrevBlank(e.target); e.preventDefault(); }
+  if (e.key === 'ArrowRight') { focusNextBlank(e.target); e.preventDefault(); }
+}
+
+function focusPrevBlank(el) {
+  var all = document.querySelectorAll('.blank-group input:not([disabled])');
+  var idx = Array.prototype.indexOf.call(all, el);
+  if (idx > 0) all[idx - 1].focus();
+}
+
+function focusNextBlank(el) {
+  var all = document.querySelectorAll('.blank-group input:not([disabled])');
+  var idx = Array.prototype.indexOf.call(all, el);
+  if (idx < all.length - 1) all[idx + 1].focus();
+}
+
+function onChoiceClick(e) {
+  var btn = e.target;
+  var optIdx = parseInt(btn.dataset.optionIndex, 10);
+  var q = state.choiceQ;
+  if (q.answered) return;
+  q.answered = true;
+  q.correct = (q.options[optIdx] === q.targetCh);
+
+  var blankSpan = document.getElementById('choiceBlank');
+  blankSpan.textContent = q.options[optIdx];
+
+  if (q.correct) {
+    blankSpan.classList.add('correct');
+    btn.classList.add('choice-correct');
+    state.correct++;
+    state.score += scoreMul();
+    state.streak++;
+    showReward();
+  } else {
+    blankSpan.classList.add('wrong');
+    btn.classList.add('choice-wrong');
+    var btns = document.querySelectorAll('.choice-btn');
+    for (var i = 0; i < btns.length; i++) {
+      if (btns[i].textContent === q.targetCh) btns[i].classList.add('choice-correct');
+    }
+    state.streak = 0;
+  }
+  state.total++;
+  updateStats();
+  var btns = document.querySelectorAll('.choice-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].disabled = true;
+  setTimeout(function() { document.getElementById('nextBtn').disabled = false; }, 1200);
+}
+
+// ===== 计分 =====
+function scoreMul() {
+  if (state.difficulty === 'easy') return 10;
+  if (state.difficulty === 'medium') return 20;
+  return 30;
+}
+
+function checkAnswer() {
+  if (state.checked || state.gameMode === 'choice') return;
+  state.checked = true;
+
+  var correctCount = 0;
+  for (var i = 0; i < state.blanks.length; i++) {
+    var b = state.blanks[i];
+    var group = document.querySelector('.blank-group[data-blank-index="' + i + '"]');
+    if (!group) continue;
+    var inputs = group.querySelectorAll('input');
+    var userAns = '';
+    for (var j = 0; j < inputs.length; j++) userAns += inputs[j].value;
+
+    state.total++;
+    if (userAns === b.answer) {
+      correctCount++;
+      state.correct++;
+      state.score += scoreMul();
+      state.streak++;
+      for (var j = 0; j < inputs.length; j++) {
+        inputs[j].parentElement.classList.remove('wrong');
+        inputs[j].parentElement.classList.add('correct');
+      }
+    } else {
+      state.streak = 0;
+      for (var j = 0; j < inputs.length; j++) {
+        inputs[j].disabled = true;
+        if (inputs[j].value !== b.answer[j]) {
+          inputs[j].parentElement.classList.remove('filled');
+          inputs[j].parentElement.classList.add('wrong');
+          var ans = document.createElement('span');
+          ans.className = 'answer-text';
+          ans.textContent = b.answer[j];
+          inputs[j].parentElement.appendChild(ans);
+        } else {
+          inputs[j].parentElement.classList.add('correct');
+        }
+      }
+    }
+  }
+
+  updateStats();
+  showResult(correctCount, state.blanks.length);
+  if (correctCount === state.blanks.length && state.blanks.length > 0) showReward();
+
+  document.getElementById('nextBtn').disabled = false;
+  document.getElementById('checkBtn').disabled = true;
+  document.getElementById('hintBtn').disabled = true;
+}
+
+function updateStats() {
+  document.getElementById('roundNum').textContent = state.round;
+  document.getElementById('scoreNum').textContent = state.score;
+  var pct = state.total > 0 ? Math.round(state.correct / state.total * 100) : 0;
+  document.getElementById('accuracyNum').textContent = pct + '%';
+  document.getElementById('streakNum').textContent = state.streak;
+}
+
+function showResult(cc, total) {
+  var r = document.getElementById('result');
+  var ratio = total > 0 ? cc / total : 0;
+  r.className = 'result show';
+  if (ratio >= 0.8) {
+    r.classList.add('pass');
+    r.textContent = '太棒了！答对 ' + cc + '/' + total + ' 个！';
+  } else if (ratio >= 0.5) {
+    r.classList.add('pass');
+    r.textContent = '不错！答对 ' + cc + '/' + total + ' 个，继续加油！';
+  } else {
+    r.classList.add('fail');
+    r.textContent = '答对 ' + cc + '/' + total + ' 个，多读多练！';
+  }
 }
 
 // ===== 奖励动画 =====
-var rewards = [
-  { icon: '👍', text: '太棒了！', sub: '你的记忆力真好！' },
-  { icon: '🎉', text: '你真棒！', sub: '回答完全正确！' },
-  { icon: '⭐', text: '优秀！', sub: '诗词小达人！' },
-  { icon: '👏', text: '好厉害！', sub: '继续保持！' },
-  { icon: '🏆', text: '满分！', sub: '你是古诗词大师！' },
-];
-
-function showReward(correctCount, totalCount) {
-  var ratio = correctCount / totalCount;
-  if (ratio < 0.8) return; // only reward for good answers
-
-  var r = rewards[Math.floor(Math.random() * rewards.length)];
-  var overlay = document.getElementById('rewardOverlay');
-  document.getElementById('rewardIcon').textContent = r.icon;
-  document.getElementById('rewardText').textContent = r.text;
-  document.getElementById('rewardSub').textContent = ratio >= 0.95 ? r.sub : '答对 ' + correctCount + '/' + totalCount;
-
-  overlay.classList.add('show');
-
-  // Spawn particles
+function showReward() {
+  if (state.streak < 1) return;
+  var msgs = [
+    { icon: '👍', text: '太棒了！', sub: '连续答对 ' + state.streak + ' 题！' },
+    { icon: '🎉', text: '你真棒！', sub: '势不可挡！' },
+    { icon: '⭐', text: '优秀！', sub: '诗词小达人！' },
+    { icon: '🔥', text: state.streak + ' 连击！', sub: '继续保持！' },
+    { icon: '🏆', text: '满分！', sub: '你是古诗词大师！' },
+  ];
+  var m = msgs[Math.floor(Math.random() * msgs.length)];
+  var ov = document.getElementById('rewardOverlay');
+  document.getElementById('rewardIcon').textContent = m.icon;
+  document.getElementById('rewardText').textContent = m.text;
+  document.getElementById('rewardSub').textContent = m.sub;
+  ov.classList.add('show');
   spawnParticles();
-
   setTimeout(function() {
-    overlay.classList.remove('show');
-    // Clean up particles
-    var parts = document.querySelectorAll('.particle');
-    for (var i = 0; i < parts.length; i++) parts[i].remove();
-  }, 2200);
+    ov.classList.remove('show');
+    var ps = document.querySelectorAll('.particle');
+    for (var i = 0; i < ps.length; i++) ps[i].remove();
+  }, 2000);
 }
 
 function spawnParticles() {
@@ -859,8 +1032,9 @@ function spawnParticles() {
     p.style.left = (Math.random() * 100) + 'vw';
     p.style.top = (Math.random() * 60) + 'vh';
     p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-    p.style.width = (6 + Math.random() * 10) + 'px';
-    p.style.height = p.style.width;
+    var sz = (6 + Math.random() * 10) + 'px';
+    p.style.width = sz;
+    p.style.height = sz;
     p.style.setProperty('--dx', (Math.random() * 200 - 100) + 'px');
     p.style.setProperty('--dy', (100 + Math.random() * 200) + 'px');
     p.style.animationDelay = (Math.random() * 0.5) + 's';
@@ -868,165 +1042,256 @@ function spawnParticles() {
   }
 }
 
+// ===== 提示 =====
+function showHint() {
+  if (state.checked) return;
+  if (state.gameMode === 'choice') {
+    var btns = document.querySelectorAll('.choice-btn:not(.choice-correct):not(.choice-wrong)');
+    for (var i = 0; i < btns.length; i++) {
+      if (btns[i].textContent !== state.choiceQ.targetCh) {
+        btns[i].style.opacity = '0.3';
+        btns[i].disabled = true;
+        break;
+      }
+    }
+    state.score = Math.max(0, state.score - 5);
+    updateStats();
+    return;
+  }
+  for (var i = 0; i < state.blanks.length; i++) {
+    var b = state.blanks[i];
+    var group = document.querySelector('.blank-group[data-blank-index="' + i + '"]');
+    if (!group) continue;
+    var inputs = group.querySelectorAll('input');
+    for (var j = 0; j < inputs.length; j++) {
+      if (!inputs[j].value) {
+        inputs[j].value = b.answer[j];
+        inputs[j].parentElement.classList.add('filled', 'correct');
+        state.score = Math.max(0, state.score - 5);
+        updateStats();
+        return;
+      }
+    }
+  }
+}
+
 // ===== 学习模式 =====
 function startLearn() {
-  var pool = getFilteredPoems();
-  if (pool.length === 0) return;
+  var pool = getFiltered();
+  if (pool.length === 0) { alert('没有可用的诗词'); return; }
   state.currentPoem = pool[Math.floor(Math.random() * pool.length)];
   state.mode = 'learn';
 
-  document.getElementById('result').className = 'result';
-  document.getElementById('hintText').textContent = '点击「朗读」听诗词朗诵，点击「开始答题」进入挑战';
-  document.getElementById('checkBtn').disabled = true;
-  document.getElementById('showBtn').disabled = true;
-  document.getElementById('nextBtn').disabled = true;
-  document.getElementById('startBtn').textContent = '开始答题';
+  setTitle(state.currentPoem);
+  var body = document.getElementById('poemBody');
+  body.innerHTML = '';
+  body.classList.add('learn-mode');
 
-  renderPoem(true);
-}
-
-// ===== 答题模式 =====
-function startQuiz() {
-  var pool = getFilteredPoems();
-  if (pool.length === 0) { alert('没有可用的诗词'); return; }
-  state.currentPoem = pool[Math.floor(Math.random() * pool.length)];
-  state.blanks = [];
-  state.checked = false;
-  state.mode = 'quiz';
-
-  var poem = state.currentPoem;
-  state.blankPhrases = selectPhraseBlanks(poem.text, state.difficulty);
-
-  console.log('[debug] poem:', poem.title, 'text length:', poem.text.length);
-  console.log('[debug] blankPhrases:', JSON.stringify(state.blankPhrases));
-
-  try {
-    renderPoem(false);
-    console.log('[debug] renderPoem done, blanks:', state.blanks.length);
-  } catch(e) {
-    console.error('[debug] renderPoem error:', e);
-    alert('渲染出错: ' + e.message);
+  var text = state.currentPoem.text;
+  var parts = text.split(/([。！？，\n])/);
+  var tIdx = 0;
+  for (var p = 0; p < parts.length; p++) {
+    var part = parts[p];
+    if (!part) continue;
+    if (/^[。！？，\n]+$/.test(part)) { tIdx += part.length; continue; }
+    var lineDiv = document.createElement('div');
+    lineDiv.className = 'line';
+    for (var i = 0; i < part.length; i++) {
+      var span = document.createElement('span');
+      span.className = 'char';
+      span.textContent = part[i];
+      span.style.animationDelay = (tIdx * 0.03) + 's';
+      lineDiv.appendChild(span);
+      tIdx++;
+    }
+    body.appendChild(lineDiv);
   }
 
-  document.getElementById('result').className = 'result';
-  document.getElementById('hintText').textContent = '共 ' + state.blanks.length + ' 个空，点击「检查答案」提交';
-  document.getElementById('checkBtn').disabled = false;
-  document.getElementById('showBtn').disabled = false;
-  document.getElementById('nextBtn').disabled = true;
-  document.getElementById('startBtn').textContent = '再来一局';
+  var speakBtn = document.createElement('button');
+  speakBtn.className = 'speak-btn';
+  speakBtn.textContent = '🔊 朗读';
+  speakBtn.onclick = function() { recitePoem(text, speakBtn); };
+  body.appendChild(speakBtn);
 
-  var firstInput = document.querySelector('.blank input');
+  document.getElementById('hintText').textContent = '点击「朗读」听诗词朗诵，点击「下一题」换一首';
+  document.getElementById('checkBtn').disabled = true;
+  document.getElementById('hintBtn').disabled = true;
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function recitePoem(text, btn) {
+  if (!('speechSynthesis' in window)) {
+    alert('您的浏览器不支持语音合成');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  var utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'zh-CN';
+  utter.rate = 0.75;
+  var voices = window.speechSynthesis.getVoices();
+  for (var i = 0; i < voices.length; i++) {
+    if (voices[i].lang.indexOf('zh') === 0) { utter.voice = voices[i]; break; }
+  }
+  if (btn) { btn.classList.add('speaking'); btn.textContent = '🔊 朗读中...'; }
+  utter.onend = function() { if (btn) { btn.classList.remove('speaking'); btn.textContent = '🔊 朗读'; } };
+  utter.onerror = function() { if (btn) { btn.classList.remove('speaking'); btn.textContent = '🔊 朗读'; } };
+  window.speechSynthesis.speak(utter);
+}
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
+}
+
+// ===== 下一题 =====
+function nextRound() {
+  if (state.mode === 'learn') { startLearn(); return; }
+  state.round++;
+  state.checked = false;
+  var pool = getFiltered();
+  if (pool.length === 0) { alert('没有可用的诗词'); return; }
+
+  // Pick different poem if possible
+  var newPoem;
+  var tries = 0;
+  do {
+    newPoem = pool[Math.floor(Math.random() * pool.length)];
+    tries++;
+  } while (newPoem === state.currentPoem && pool.length > 1 && tries < 10);
+  state.currentPoem = newPoem;
+
+  if (state.gameMode === 'choice') {
+    state.choiceQ = generateChoiceQ(state.currentPoem.text);
+  } else {
+    state.blanks = [];
+    state.blankSet = {};
+  }
+
+  renderQuiz();
+
+  if (state.gameMode === 'choice') {
+    document.getElementById('hintText').textContent = '选择正确的字填入空白处';
+    document.getElementById('checkBtn').disabled = true;
+    document.getElementById('hintBtn').disabled = false;
+  } else {
+    document.getElementById('hintText').textContent = '共 ' + state.blanks.length + ' 个空，点击「检查答案」提交';
+    document.getElementById('checkBtn').disabled = false;
+    document.getElementById('hintBtn').disabled = false;
+  }
+  document.getElementById('nextBtn').disabled = true;
+  document.getElementById('result').className = 'result';
+
+  updateStats();
+
+  // Focus first input
+  var firstInput = document.querySelector('.blank-group input');
   if (firstInput) setTimeout(function() { firstInput.focus(); }, 300);
 }
 
-function checkAnswer() {
-  if (state.checked) return;
-  state.checked = true;
-  var correctCount = 0;
+// ===== 背景音乐 =====
+var bgm = { ctx: null, playing: false, loopId: null, gainNode: null };
+var pentatonic = [293.66, 329.63, 369.99, 440.00, 493.88];
+var melody = [
+  {n:0,d:.6},{n:2,d:.6},{n:4,d:1},{n:3,d:.6},{n:2,d:.6},{n:0,d:1},
+  {n:1,d:.6},{n:2,d:.6},{n:4,d:.6},{n:3,d:.6},{n:2,d:1},{n:0,d:1},
+  {n:-5,d:.6},{n:-3,d:.6},{n:0,d:1},{n:2,d:.6},{n:4,d:.6},{n:3,d:1.2},
+];
 
-  for (var i = 0; i < state.blanks.length; i++) {
-    var b = state.blanks[i];
-    var input = b.element.querySelector('input');
-    var val = input.value.trim();
-    input.disabled = true;
-    if (val === b.answer) {
-      b.element.classList.add('correct');
-      correctCount++;
-    } else {
-      b.element.classList.add('wrong');
-      var ansSpan = document.createElement('span');
-      ansSpan.className = 'answer-text';
-      ansSpan.textContent = b.answer;
-      b.element.appendChild(ansSpan);
-    }
+function initBGM() {
+  bgm.ctx = new (window.AudioContext || window.webkitAudioContext)();
+  bgm.gainNode = bgm.ctx.createGain();
+  bgm.gainNode.gain.value = 0.12;
+  bgm.gainNode.connect(bgm.ctx.destination);
+}
+
+function playNote(freq, start, dur) {
+  if (!bgm.ctx || !bgm.playing) return;
+  var osc = bgm.ctx.createOscillator();
+  var env = bgm.ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  env.gain.setValueAtTime(0, start);
+  env.gain.linearRampToValueAtTime(0.25, start + 0.05);
+  env.gain.linearRampToValueAtTime(0.15, start + dur * 0.7);
+  env.gain.linearRampToValueAtTime(0, start + dur);
+  osc.connect(env);
+  env.connect(bgm.gainNode);
+  osc.start(start);
+  osc.stop(start + dur);
+}
+
+function scheduleLoop() {
+  if (!bgm.playing) return;
+  var now = bgm.ctx.currentTime;
+  var t = now + 0.1, total = 0;
+  for (var i = 0; i < melody.length; i++) {
+    var item = melody[i];
+    var ni = item.n;
+    var freq;
+    if (ni < 0) { freq = pentatonic[0] / Math.pow(2, Math.abs(ni) / 12); }
+    else { freq = pentatonic[ni % 5]; if (ni >= 5) freq *= Math.pow(2, Math.floor(ni / 5)); }
+    playNote(freq, t, item.d * 0.85);
+    t += item.d;
+    total += item.d;
   }
+  bgm.loopId = setTimeout(scheduleLoop, total * 1000 - 100);
+}
 
-  state.total += state.blanks.length;
-  state.correct += correctCount;
-  state.score += correctCount;
-
-  var pct = state.total > 0 ? Math.round(state.correct / state.total * 100) : 0;
-  document.getElementById('scoreNum').textContent = state.score;
-  document.getElementById('accuracyNum').textContent = pct + '%';
-
-  var result = document.getElementById('result');
-  var ratio = correctCount / state.blanks.length;
-  if (ratio >= 0.8) {
-    result.className = 'result show pass';
-    result.textContent = '太棒了！答对 ' + correctCount + '/' + state.blanks.length + ' 个！';
-  } else if (ratio >= 0.5) {
-    result.className = 'result show pass';
-    result.textContent = '不错！答对 ' + correctCount + '/' + state.blanks.length + ' 个，继续加油！';
+function toggleBGM() {
+  if (!bgm.ctx) initBGM();
+  if (bgm.ctx.state === 'suspended') bgm.ctx.resume();
+  bgm.playing = !bgm.playing;
+  var btn = document.getElementById('bgmBtn');
+  if (bgm.playing) {
+    btn.textContent = '🎵'; btn.classList.add('bgm-on'); scheduleLoop();
   } else {
-    result.className = 'result show fail';
-    result.textContent = '答对 ' + correctCount + '/' + state.blanks.length + ' 个，多读多练！';
+    btn.textContent = '🔇'; btn.classList.remove('bgm-on'); clearTimeout(bgm.loopId);
   }
-
-  showReward(correctCount, state.blanks.length);
-
-  document.getElementById('checkBtn').disabled = true;
-  document.getElementById('showBtn').disabled = true;
-  document.getElementById('nextBtn').disabled = false;
-  document.getElementById('hintText').textContent = '点击「下一题」继续';
-}
-
-function showAnswer() {
-  if (state.checked) return;
-  state.checked = true;
-  for (var i = 0; i < state.blanks.length; i++) {
-    var b = state.blanks[i];
-    var input = b.element.querySelector('input');
-    input.disabled = true;
-    input.value = b.answer;
-    b.element.classList.add('correct');
-  }
-  state.total += state.blanks.length;
-  state.correct += state.blanks.length;
-  var pct = state.total > 0 ? Math.round(state.correct / state.total * 100) : 0;
-  document.getElementById('scoreNum').textContent = state.score;
-  document.getElementById('accuracyNum').textContent = pct + '%';
-
-  var result = document.getElementById('result');
-  result.className = 'result show pass';
-  result.textContent = '答案已显示，点击「下一题」继续';
-
-  document.getElementById('checkBtn').disabled = true;
-  document.getElementById('showBtn').disabled = true;
-  document.getElementById('nextBtn').disabled = false;
-}
-
-function nextRound() {
-  state.round++;
-  document.getElementById('roundNum').textContent = state.round;
-  if (state.mode === 'learn') startLearn();
-  else startQuiz();
 }
 
 // ===== 事件绑定 =====
-document.getElementById('startBtn').addEventListener('click', startQuiz);
 document.getElementById('learnBtn').addEventListener('click', startLearn);
 document.getElementById('checkBtn').addEventListener('click', checkAnswer);
 document.getElementById('nextBtn').addEventListener('click', nextRound);
-document.getElementById('showBtn').addEventListener('click', showAnswer);
+document.getElementById('hintBtn').addEventListener('click', showHint);
+document.getElementById('bgmBtn').addEventListener('click', toggleBGM);
 
+// Mode buttons
+var modeBtns = document.querySelectorAll('.mode-btn');
+for (var i = 0; i < modeBtns.length; i++) {
+  (function(btn) {
+    btn.addEventListener('click', function() {
+      for (var j = 0; j < modeBtns.length; j++) modeBtns[j].classList.remove('active');
+      btn.classList.add('active');
+      state.gameMode = btn.dataset.mode;
+      // Reset round when mode changes
+      state.round = 1;
+      state.checked = false;
+      state.mode = 'quiz';
+      nextRound();
+    });
+  })(modeBtns[i]);
+}
+
+// Difficulty buttons
 var diffBtns = document.querySelectorAll('.diff-btn');
 for (var i = 0; i < diffBtns.length; i++) {
   (function(btn) {
     btn.addEventListener('click', function() {
       for (var j = 0; j < diffBtns.length; j++) diffBtns[j].classList.remove('active');
       btn.classList.add('active');
-      state.difficulty = btn.getAttribute('data-diff');
+      state.difficulty = btn.dataset.diff;
     });
   })(diffBtns[i]);
 }
 
+// Grade buttons
 var gradeBtns = document.querySelectorAll('.grade-btn');
 for (var i = 0; i < gradeBtns.length; i++) {
   (function(btn) {
     btn.addEventListener('click', function() {
       for (var j = 0; j < gradeBtns.length; j++) gradeBtns[j].classList.remove('active');
       btn.classList.add('active');
-      state.grade = btn.getAttribute('data-grade');
+      state.grade = btn.dataset.grade;
     });
   })(gradeBtns[i]);
 }
